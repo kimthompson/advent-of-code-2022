@@ -12,6 +12,6 @@ USER gitpod
 # More information: https://www.gitpod.io/docs/config-docker/
 
 RUN sudo apt-get update -q && \
-    sudo apt-get install -yq elixir && \
-    mix deps.get && \
-    mix local.hex --force
+    sudo apt-get install -yq elixir
+    # mix deps.get && \
+    # mix local.hex
