@@ -13,4 +13,5 @@ USER gitpod
 
 RUN sudo apt-get update -q && \
     sudo apt-get install -yq elixir && \
-    mix deps.get
+    mix deps.get && \
+    mix local.hex --force
