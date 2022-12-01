@@ -5,12 +5,13 @@ defmodule AdventOfCode.Day01 do
     Enum.sum(Enum.map(String.split(snacks, "\n", trim: true), fn (snack) -> String.to_integer(snack) end))
   end
 
-  def part1(_args) do
-    # Get the input data
+  def get_elves do
     input = AdventOfCode.Input.get!(1)
+    Enum.with_index(String.split(input, "\n\n", trim: true))
+  end
 
-    # Split on each elf
-    elves = Enum.with_index(String.split(input, "\n\n", trim: true))
+  def part1(_args) do
+    elves = get_elves()
 
     # Assign each elf a name and sum the calories in their snacks
     elf_packs = Enum.map(elves, fn ({snacks, name}) -> %{
@@ -23,12 +24,7 @@ defmodule AdventOfCode.Day01 do
   end
 
   def part2(_args) do
-    # FIXME: Split is tedium into other function(s) that can be used in both parts 1 and 2
-    # Get the input data
-    input = AdventOfCode.Input.get!(1)
-
-    # Split on each elf
-    elves = Enum.with_index(String.split(input, "\n\n", trim: true))
+    elves = get_elves()
 
     # Assign each elf a name and sum the calories in their snacks
     elf_packs = Enum.map(elves, fn({snacks, name}) -> %{
