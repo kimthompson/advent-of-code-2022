@@ -1,2 +1,2 @@
 image:
-  file: docker pull gitpod/workspace-elixir
+  file: gitpod/workspace-elixir
