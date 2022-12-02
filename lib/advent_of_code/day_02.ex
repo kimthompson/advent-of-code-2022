@@ -19,7 +19,7 @@ defmodule AdventOfCode.Day02 do
 
   def calculate_rps_score(d) do
     [them, us | _] = d
-    |> String.split(" ", trim: true)
+      |> String.split(" ", trim: true)
 
     their_play = Enum.find(@rules, &(&1.them == them))
     our_play = Enum.find(@rules, &(&1.us == us))

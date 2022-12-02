@@ -7,13 +7,13 @@ defmodule AdventOfCode.Day01Test do
     input = AdventOfCode.Input.get!(1)
     result = part1(input)
 
-    assert result
+    assert result == 68292
   end
 
   test "part2" do
     input = AdventOfCode.Input.get!(1)
     result = part2(input)
 
-    assert result
+    assert result == 203203
   end
 end
