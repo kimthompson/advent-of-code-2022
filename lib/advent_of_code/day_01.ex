@@ -1,7 +1,7 @@
 defmodule AdventOfCode.Day01 do
 
   def get_elves do
-    input = AdventOfCode.Input.get!(1)
+    input = AdventOfCode.Input.get!(1, 2022)
     Enum.with_index(String.split(input, "\n\n", trim: true))
   end
 
