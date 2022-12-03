@@ -7,27 +7,34 @@ defmodule AdventOfCode.Day03 do
     |> Enum.with_index()
     |> Enum.map(fn {key, value} -> {key, value + 1} end)
 
+  def calculate_priority(x) do
+    Enum.find(@values, fn {key, _value} -> key == x end)
+      |> elem(1)
+  end
+
   def part1(_args) do
-    # For each row (rucksack), split in half (compartments)
-    firstRucksackCompartmentSize = List.first(@data)
-      |> String.length()
-      |> div(2)
+    # For each row (rucksack)
+    misplacedItems = Enum.reduce(@data, [], fn x, acc ->
 
-    firstRucksack = List.first(@data)
-      |> String.codepoints
-      |> Enum.chunk_every(firstRucksackCompartmentSize)
+      # Split in half (compartments)
+      [compartmentOne, compartmentTwo] = x
+        |> String.codepoints
+        |> Enum.chunk_every(div(String.length(x), 2))
 
-    [compartmentOne, compartmentTwo | _rest] = firstRucksack
+      # Find the items they have in common
+      common = MapSet.intersection(MapSet.new(compartmentOne), MapSet.new(compartmentTwo))
+        |> MapSet.to_list()
 
-    # Compare each of these strings(compartments) to find common characters (items), and return a list of these
-    misplacedItems = MapSet.intersection(MapSet.new(compartmentOne), MapSet.new(compartmentTwo))
-
-    # Convert these characters to numbers and sum
-    Enum.reduce(misplacedItems, 0, fn x, acc ->
-      Enum.find(@values, fn {key, val} -> key == x end)
-        |> elem(1)
+      # Keep track
+      acc ++ common
     end)
 
+    # Convert these items to priority values and sum
+    Enum.reduce(misplacedItems, 0, fn x, acc ->
+      Enum.find(@values, fn {key, _value} -> key == x end)
+        |> elem(1)
+        |> Kernel.+(acc)
+    end)
   end
 
   def part2(_args) do
