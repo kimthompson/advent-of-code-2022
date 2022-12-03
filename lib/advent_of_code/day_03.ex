@@ -7,9 +7,12 @@ defmodule AdventOfCode.Day03 do
     |> Enum.with_index()
     |> Enum.map(fn {key, value} -> {key, value + 1} end)
 
-  def calculate_priority(x) do
-    Enum.find(@values, fn {key, _value} -> key == x end)
-      |> elem(1)
+  def score_items(items) do
+    Enum.reduce(items, 0, fn x, acc ->
+      priority = Enum.find(@values, fn {key, _value} -> key == x end)
+        |> elem(1)
+        priority + acc
+    end)
   end
 
   def part1(_args) do
@@ -30,13 +33,26 @@ defmodule AdventOfCode.Day03 do
     end)
 
     # Convert these items to priority values and sum
-    Enum.reduce(misplacedItems, 0, fn x, acc ->
-      Enum.find(@values, fn {key, _value} -> key == x end)
-        |> elem(1)
-        |> Kernel.+(acc)
-    end)
+    score_items(misplacedItems)
   end
 
   def part2(_args) do
+    # Split the elves into their groups of 3
+    elf_groups = Stream.chunk_every(@data, 3) |> Enum.to_list()
+
+    # For each group
+    badges = Enum.reduce(elf_groups, [], fn x, acc ->
+
+      # Search for the common element between all of them -- the badge
+      [first, second, third] = Enum.map(x, fn b -> MapSet.new(String.codepoints(b)) end)
+      badge = MapSet.intersection(MapSet.intersection(first, second), third)
+        |> MapSet.to_list()
+
+      # Keep track
+      acc ++ badge
+    end)
+
+    # Convert these items to priority values and sum
+    score_items(badges)
   end
 end
