@@ -4,3 +4,7 @@ image:
 tasks:
   - name: Mix
     command: mix local.hex --force && mix deps.get --force && mix local.hex --force
+
+vscode:
+  extensions:
+    - elixir-lsp.elixir-ls
