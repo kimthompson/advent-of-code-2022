@@ -12,7 +12,6 @@ USER gitpod
 # More information: https://www.gitpod.io/docs/config-docker/
 
 RUN sudo apt update -q && \
-    sudo apt install -yq elixir && \
-    sudo apt install esl-erlang
+    sudo apt install -yq elixir
     # mix deps.get && \
     # mix local.hex
