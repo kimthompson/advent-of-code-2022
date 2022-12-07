@@ -12,8 +12,7 @@ USER gitpod
 # More information: https://www.gitpod.io/docs/config-docker/
 
 RUN sudo apt update -q && \
-    sudo DEBIAN_FRONTEND=noninteractive && \
-    sudo apt install keyboard-configuration && \
+    sudo DEBIAN_FRONTEND=noninteractive apt install -y keyboard-configuration && \
     sudo apt install -y elixir && \
     sudo apt install -y erlang
     # mix deps.get && \
