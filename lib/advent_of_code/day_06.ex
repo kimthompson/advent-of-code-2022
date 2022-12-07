@@ -1,5 +1,4 @@
 defmodule AdventOfCode.Day06 do
-  @data "nppdvjthqldpwncqszvftbrmjlhg"
   @data AdventOfCode.Input.get!(6, 2022)
   |> String.codepoints
 
