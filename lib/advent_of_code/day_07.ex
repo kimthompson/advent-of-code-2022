@@ -1,67 +1,75 @@
 defmodule AdventOfCode.Day07 do
   @data AdventOfCode.Input.get!(7, 2022)
-  # @data "$ cd /\n$ ls\ndir a\n14848514 b.txt\n8504156 c.dat\ndir d\n$ cd a\n$ ls\ndir e\n29116 f\n2557 g\n62596 h.lst\n$ cd e\n$ ls\n584 i\n$ cd ..\n$ cd ..\n$ cd d\n$ ls\n4060174 j\n8033020 d.log\n5626152 d.ext\n7214296 k"
-    |> String.split("\n")
+  |> String.trim()
+  |> String.split("\n")
+
+  # I hit the limits of my skill here, and wanted to look up how someone else did it and attempt to understand their solution before moving on for today. I learned a lot from this code written by intercaetera, so huge shoutout to him! Here's hoping that by the end of this AoC writing recursive functions in this way will be second nature to me. https://github.com/intercaetera/aoc2022/blob/master/lib/seven.ex
+
+  def parse_command([], tree, _), do: tree
+  def parse_command([head | tail], tree, pwd) do
+    case head do
+      "$ cd /" -> parse_command(tail, tree, ["/"])
+      "$ cd .." -> parse_command(tail, tree, tl(pwd))
+      "$ cd " <> dir -> parse_command(tail, tree, [dir | pwd])
+      "$ ls" -> parse_ls(tail, tree, pwd)
+    end
+  end
+
+  def parse_ls([], tree, pwd), do: parse_command([], tree, pwd)
+  def parse_ls([head | tail], tree, pwd) do
+    case head do
+      "$" <> _ -> parse_command([head | tail], tree, pwd)
+      "dir " <> _dir -> parse_ls(tail, tree, pwd)
+      size_and_name ->
+        [size, filename] = String.split(size_and_name, " ")
+        tuple = {filename, String.to_integer(size)}
+        new_tree = tree |> Map.update(pwd, [tuple], fn existing -> [tuple | existing] end)
+        parse_ls(tail, new_tree, pwd)
+    end
+  end
+
+  def flatten_tree(tree, flat \\ %{})
+  def flatten_tree([], flat), do: flat
+  def flatten_tree([head | tail], flat) do
+    {path, files} = head
+    total_size = files |> Enum.map(fn {_, size} -> size end) |> Enum.sum()
+    new_flat = groups(path) |> Enum.reduce(flat, fn path, flat ->
+      Map.update(flat, path, total_size, &(&1 + total_size))
+    end)
+    flatten_tree(tail, new_flat)
+  end
+
+  def groups([one]), do: [[one]]
+  def groups([_head | tail] = list), do: [list | groups(tail)]
 
   def part1(_args) do
-    groups = @data
-    |> Enum.chunk_by(&(&1 =~ "$"))
+    tree = @data
+    |> parse_command(%{}, [])
+    |> Map.to_list()
+    |> flatten_tree()
 
-    directives = groups
-    |> Enum.take_every(2)
-
-    contents = groups
-    |> Enum.drop(1)
-    |> Enum.take_every(2)
-
-    pairs = Enum.zip(directives, contents)
-
-    tree_nodes = pairs
-    |> Enum.reduce([], fn x, acc ->
-      dirname = elem(x, 0)
-      |> Enum.filter(&(&1 =~ "cd"))
-      |> List.last()
-      |> String.split()
-      |> List.last()
-
-      files = elem(x, 1)
-      |> Enum.filter(&(&1 =~ ~r{\A\d}))
-
-      dirs = elem(x, 1)
-      |> Enum.filter(&(&1 =~ "dir"))
-      |> Enum.map(&String.split(&1))
-      |> Enum.map(&List.last(&1))
-
-      local_bytes = files
-      |> Enum.map(&String.split(&1))
-      |> Enum.map(&List.first(&1))
-      |> Enum.map(&String.to_integer(&1))
-      |> Enum.sum()
-
-      acc ++ [%{dirname: dirname, files: files, dirs: dirs, local_bytes: local_bytes}]
-    end)
-
-    # For each element in dirs, look up matching dirname and sum those bytes as well
-    result = tree_nodes
-    |> Enum.reduce([], fn x, acc ->
-      subdirs = Enum.map(x.dirs, fn y ->
-        Enum.find(tree_nodes, &(&1.dirname == y)).local_bytes
-      end)
-      subdir_bytes = Enum.sum(subdirs)
-      # acc ++ [%{dirname: x.dirname, files: x.files, dirs: x.dirs, local_bytes: x.local_bytes, subdir_bytes: subdir_bytes, total_bytes: x.local_bytes + subdir_bytes}]
-      acc ++ [%{dirname: x.dirname, files: x.files, dirs: x.dirs, total_bytes: x.local_bytes + subdir_bytes}]
-    end)
-
-    # Enum.find(result, fn x -> x.dirname == "zfhnw" end)
-    # Enum.find(result, fn x -> x.dirname == "pjqwq" end)
-    # files: ["50937 dtzw", "186171 mjm.dhc", "305433 mlm", "272969 mlm.rhf"],
-
-    result
-    |> Enum.filter(&(&1.total_bytes < 100000))
-    |> Enum.map(&(&1.total_bytes))
-    |> Enum.sum
+    tree
+    |> Enum.map(&(elem(&1, 1)))
+    |> Enum.reject(&(&1 >= 100000))
+    |> Enum.sum()
   end
 
   def part2(_args) do
+    tree = @data
+    |> parse_command(%{}, [])
+    |> Map.to_list()
+    |> flatten_tree()
+
+    space_used = Map.get(tree, ["/"])
+    disk_space_available = 70000000
+    update_size = 30000000
+    free_space = disk_space_available - space_used
+    needed_space = update_size - free_space
+
+    tree
+    |> Enum.map(&(elem(&1, 1)))
+    |> Enum.filter(&(&1 > needed_space))
+    |> Enum.sort()
+    |> hd()
   end
 end
